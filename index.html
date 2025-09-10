@@ -104,7 +104,8 @@
             flex-shrink: 0;
         }
         
-        .back-btn {
+        /* Added ID to the back button */
+        .back-btn { 
             background: rgba(74, 144, 226, 0.3);
             border: 2px solid var(--primary);
             border-radius: 50%;
@@ -336,7 +337,7 @@
         </div>
 
         <div class="header">
-            <button class="back-btn" onclick="goBackOrClose()">
+            <button class="back-btn" id="back-btn">
                 <svg viewBox="0 0 24 24">
                     <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
                 </svg>
@@ -396,9 +397,11 @@
             typingIndicator: document.getElementById('typing-indicator'),
             optionsContainer: document.getElementById('options-container'),
             starsContainer: document.getElementById('stars'),
+            backBtn: document.getElementById('back-btn'), // Get the back button element
         };
 
-        let currentStepId = 0; // Keep track of the current active story step
+        // currentStepId is now primarily for displaying the content, not history management
+        let currentStepId = 0; 
 
         function init() {
             createStars();
@@ -406,27 +409,41 @@
             // This event listener handles when the user uses the BROWSER'S native back/forward buttons
             window.addEventListener('popstate', (event) => {
                 if (event.state && event.state.stepId !== undefined) {
-                    // Navigate to the specific step ID stored in the history state
                     displayStoryStep(event.state.stepId, false); // Don't push new state when using browser history
-                } else {
-                    // If popstate is triggered but no state is found (e.g., first history entry)
-                    // We assume it's navigating outside our app's defined steps.
-                    // For safety, we can re-display the initial step, or do nothing.
-                    // For the "single back to previous page" model, this shouldn't be hit within our app's lifecycle
-                    // unless the initial replaceState caused an odd state.
                 }
             });
 
-            // On initial load, establish the first step in the browser's history
-            // using replaceState. This ensures that the first `history.back()`
-            // will always go to the page that opened this one, or attempt to close.
+            // On initial load, push the first step into browser history.
+            // If the page is refreshed or opened with a specific hash, start there.
             const initialHash = window.location.hash.replace('#step-', '');
             const initialStepId = parseInt(initialHash);
             const startStep = storyScript.find(s => s.id === (isNaN(initialStepId) ? 0 : initialStepId));
             currentStepId = startStep ? startStep.id : 0;
             
-            history.replaceState({ stepId: currentStepId }, `Step ${currentStepId}`, `#step-${currentStepId}`);
-            displayStoryStep(currentStepId, false); // Display but don't add to history again (already replaced)
+            // Push the initial state, ensuring a starting point in history
+            history.pushState({ stepId: currentStepId }, `Step ${currentStepId}`, `#step-${currentStepId}`);
+            displayStoryStep(currentStepId, false); // Display it, but don't push history again
+            
+            // Attach the specific back button functionality
+            elements.backBtn.addEventListener('click', () => {
+                // Check if the page is inside an iframe (like when it's in fullscreen mode on your site)
+                if (window.self !== window.top) {
+                    // Send a message to the parent window to close the demo
+                    window.parent.postMessage('closeChizelverseDemo', '*');
+                } else {
+                    // If it's not in an iframe, it's in its own tab. First, try to close it.
+                    window.close();
+
+                    // As a fallback, if the tab can't be closed by script, go back in history
+                    setTimeout(() => {
+                        // Check if the window is still open (meaning window.close() failed)
+                        // A small delay gives the browser time to attempt closing before checking.
+                        if (!window.closed) { 
+                            window.history.back();
+                        }
+                    }, 100); // 100ms delay
+                }
+            });
         }
 
         function createStars() {
@@ -452,8 +469,6 @@
 
             if (pushState) {
                 // Add the new step to the browser's history.
-                // This allows the browser's back button and our custom back button
-                // to navigate through our story steps.
                 history.pushState({ stepId: stepIndex }, `Step ${stepIndex}`, `#step-${stepIndex}`);
             }
 
@@ -515,22 +530,6 @@
                 elements.optionsContainer.appendChild(button);
             });
             elements.optionsContainer.classList.add('visible');
-        }
-
-        function goBackOrClose() {
-            // Check if the current step is the very first step of our story (id: 0)
-            // AND if the browser history only has one entry (meaning our initial replaceState is it)
-            // This is the condition for "close if opened directly" or "back to previous website"
-            if (currentStepId === 0 && window.history.length <= 1) { // Adjusted for robustness
-                // Attempt to close the window. This will only succeed if opened by script.
-                window.close();
-            } else {
-                // Otherwise, perform a standard browser back operation.
-                // This will navigate through our story steps (if pushState was used),
-                // or go to the page that launched our application if we're at the beginning
-                // of our app's history entries.
-                window.history.back();
-            }
         }
 
         document.addEventListener('DOMContentLoaded', init);
