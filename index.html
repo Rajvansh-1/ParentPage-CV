@@ -17,21 +17,20 @@
             --space-blue: #1A2E40;
 
             /* Define fixed heights/min-heights for critical elements */
-            --header-height: 70px; 
-            --options-min-height: 140px; /* Minimum height for options area */
-            --character-visual-height: 250px; /* Desired visual height of character */
-            --bubble-margin-bottom: 15px; /* Space between bubble and character */
-            --bubble-pointer-height: 18px; /* Height of the speech bubble's pointer */
-            --content-area-padding-vertical: 20px; /* Padding for main content */
+            --header-height: 80px; /* Increased to give tagline space */
+            --options-min-height: 140px; 
+            --character-visual-height: 250px; 
+            --bubble-margin-bottom: 15px; 
+            --bubble-pointer-height: 18px;
+            --main-content-padding-vertical: 10px;
         }
 
         /* Adjustments for smaller screens */
         @media (max-width: 500px) {
             :root {
-                --header-height: 60px; 
+                --header-height: 70px; 
                 --options-min-height: 120px;
                 --character-visual-height: 180px;
-                --content-area-padding-vertical: 10px;
             }
         }
         @media (min-width: 501px) and (max-width: 768px) {
@@ -63,7 +62,7 @@
             height: 100%;
             overflow: hidden;
             display: flex;
-            flex-direction: column; /* Stacks header, content, options vertically */
+            flex-direction: column;
         }
 
         .space-background {
@@ -102,7 +101,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0; /* Prevents shrinking */
+            flex-shrink: 0;
         }
         
         .back-btn {
@@ -130,7 +129,7 @@
         }
         
         .logo-container {
-            position: absolute; /* positioned relative to header */
+            position: absolute;
             left: 50%;
             transform: translateX(-50%);
             top: 15px;
@@ -157,28 +156,32 @@
             letter-spacing: 1px;
             opacity: 0.8;
             white-space: nowrap;
-            /* Position tagline relative to logo-container to avoid overlap */
-            position: absolute;
-            bottom: -20px; /* Adjust to sit below the logo image */
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 21; 
         }
         
         .header > div:last-child {
-            width: 40px; /* Placeholder for balance */
+            width: 40px;
             height: 40px;
         }
 
-        .character-bubble-group {
-            flex-grow: 1; /* Takes all available vertical space between header and options */
+        .main-content-area {
+            flex-grow: 1;
             width: 100%;
             display: flex;
-            flex-direction: column; /* Stacks bubble on top of character */
+            flex-direction: column;
             align-items: center;
-            justify-content: flex-end; /* Pushes content to the bottom of this group */
-            padding: var(--content-area-padding-vertical) 10px; /* Add vertical padding */
-            position: relative; /* For bubble positioning relative to this group */
+            padding: var(--main-content-padding-vertical) 0;
+            justify-content: flex-end; /* Push content to bottom */
+        }
+
+        .character-bubble-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            flex-grow: 1;
+            justify-content: flex-end;
+            padding: 0 10px;
+            position: relative;
         }
         
         @keyframes characterFloat {
@@ -188,14 +191,14 @@
 
         .character {
             width: clamp(200px, 45vw, 320px);
-            min-height: var(--character-visual-height); /* Ensure character always has space */
+            min-height: var(--character-visual-height);
             animation: characterFloat 4s ease-in-out infinite;
             transition: transform 0.3s ease;
             z-index: 5;
-            flex-shrink: 0; /* Prevents character from shrinking */
+            flex-shrink: 0;
             display: flex;
-            align-items: flex-end; /* Align image to bottom of character div */
-            position: relative; /* For stacking context with bubble */
+            align-items: flex-end;
+            position: relative;
         }
 
         .character:hover {
@@ -231,19 +234,12 @@
             border: 3px solid var(--grandma-color);
             
             /* Crucial: Calculate max-height and enable internal scrolling */
-            /* This calculation is relative to the *available space* within character-bubble-group */
-            max-height: calc(100% - var(--character-visual-height) - var(--bubble-margin-bottom) - var(--bubble-pointer-height));
+            max-height: calc(100vh - var(--header-height) - var(--options-min-height) - var(--character-visual-height) - var(--bubble-margin-bottom) - (var(--content-area-padding-vertical) * 2));
             overflow-y: auto; /* Enable internal scrolling */
-            flex-shrink: 1; /* Allows the bubble to shrink if content is small */
-            flex-grow: 0; /* Prevents it from growing beyond its content or max-height */
+            flex-shrink: 1; 
             display: flex; 
             flex-direction: column;
             justify-content: center;
-        }
-
-        /* Ensure scrollbar doesn't clip content */
-        .speech-bubble .bubble-content ul {
-            padding-right: 15px; /* Add padding for scrollbar */
         }
 
         .speech-bubble.visible {
@@ -253,7 +249,7 @@
         .speech-bubble::after {
             content: '';
             position: absolute;
-            bottom: -18px; /* Position pointer below the bubble */
+            bottom: -18px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
@@ -295,7 +291,7 @@
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
-            flex-shrink: 0; /* CRUCIAL: Prevents options container from shrinking */
+            flex-shrink: 0; /* Prevents options container from shrinking */
             margin-bottom: var(--content-area-padding-vertical); /* Match main content padding for bottom spacing */
             min-height: var(--options-min-height); /* Ensure a minimum height for the container */
             align-items: center; /* Vertically center buttons if there's extra space */
@@ -351,23 +347,25 @@
             <div></div>
         </div>
 
-        <div class="character-bubble-group">
-            <div class="speech-bubble" id="grandma-speech">
-                <div class="bubble-content"></div>
-                <div class="typing-indicator" id="typing-indicator">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+        <div class="main-content-area">
+            <div class="character-bubble-group">
+                <div class="speech-bubble" id="grandma-speech">
+                    <div class="bubble-content"></div>
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+                <div class="character">
+                    <div class="character-image">
+                        <img src="assets/dadi.png" alt="Grandma character">
+                    </div>
                 </div>
             </div>
-            <div class="character">
-                <div class="character-image">
-                    <img src="assets/dadi.png" alt="Grandma character">
-                </div>
-            </div>
-        </div>
 
-        <div class="options-container" id="options-container"></div>
+            <div class="options-container" id="options-container"></div>
+        </div>
     </div>
 
     <script>
