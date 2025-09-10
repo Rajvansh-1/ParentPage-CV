@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chizel for Parents - A Grandmother's Guide</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Comic+Neue:wght@400;700&display=swap">
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --secondary: #50E3C2;
+            --accent: #F8E71C;
+            --dark: #1A2E40;
+            --light: #E0F7FF;
+            --grandma-color: #9013FE;
+            --space-blue: #1A2E40;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Fredoka', sans-serif;
+            background-color: var(--space-blue);
+            color: var(--light);
+            height: 100vh;
+            overflow: hidden;
+            perspective: 1000px;
+            font-size: 18px;
+            touch-action: manipulation;
+        }
+
+        .game-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .space-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at bottom, var(--space-blue) 0%, #000000 100%);
+            z-index: -2;
+            overflow: hidden;
+        }
+
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            z-index: -1;
+        }
+
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle var(--duration, 5s) infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .character-container {
+            position: absolute;
+            bottom: 5%;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            padding: 0 5%;
+            z-index: 5;
+            left: 0;
+            right: 0;
+        }
+
+        .character {
+            position: relative;
+            width: 40%;
+            max-width: 300px;
+            bottom: 0;
+            margin: 0;
+            transition: all 0.3s ease;
+        }
+
+        .character:hover {
+            transform: translateY(-10px) scale(1.05);
+        }
+
+        .character-image img {
+            width: 100%;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(144, 19, 254, 0.5));
+            position: relative;
+        }
+
+        .speech-bubble {
+            position: absolute;
+            padding: 15px;
+            border-radius: 20px;
+            max-width: 300px;
+            font-size: 20px;
+            line-height: 1.4;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.2s ease;
+            transform: scale(0);
+            transform-origin: bottom;
+            z-index: 6;
+            font-family: 'Comic Neue', cursive;
+        }
+
+        .speech-bubble.visible {
+            transform: scale(1);
+        }
+
+        .grandma-bubble {
+            background-color: var(--dark);
+            color: var(--light);
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 100%;
+            margin-bottom: 20px;
+            border: 3px solid var(--grandma-color);
+            box-shadow: 0 0 20px var(--grandma-color);
+        }
+
+        .grandma-bubble::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 100%;
+            width: 0;
+            height: 0;
+            border: 15px solid transparent;
+            border-top-color: var(--dark);
+            border-bottom: 0;
+        }
+        
+        .bubble-content {
+            min-height: 40px;
+        }
+
+        .options-container {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            width: 90%;
+            max-width: 700px;
+            padding: 20px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.3s ease;
+        }
+
+        .options-container.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .option-btn {
+            padding: 15px 25px;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            font-family: 'Fredoka', sans-serif;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 5px 20px rgba(80, 227, 194, 0.4);
+        }
+
+        .option-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+        }
+        
+        .chizel-promo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 90%;
+            max-width: 600px;
+            background: linear-gradient(135deg, rgba(26, 46, 64, 0.98) 0%, rgba(26, 46, 64, 0.98) 100%);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            border: 3px solid var(--secondary);
+            z-index: 30;
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.5s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .chizel-promo.visible {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+            pointer-events: all;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="space-background">
+            <div class="stars" id="stars"></div>
+        </div>
+
+        <div class="character-container">
+            <div class="character">
+                <div class="character-image">
+                    <img src="https://i.imgur.com/nO8oA7s.png" alt="Grandma character">
+                </div>
+                <div class="speech-bubble grandma-bubble" id="grandma-speech">
+                    <div class="bubble-content"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="options-container"></div>
+        
+        <div class="chizel-promo" id="chizel-promo">
+        </div>
+    </div>
+
+    <script>
+        const storyScript = [
+            {
+                id: 0,
+                speaker: 'grandma',
+                message: "Hello, dear parent. I'm here to share some warmth and wisdom. Parenting is a journey of the heart.",
+                options: [
+                    { text: "It can be tough sometimes.", nextStep: 1 },
+                    { text: "I'm looking for some guidance.", nextStep: 2 }
+                ]
+            },
+            {
+                id: 1,
+                speaker: 'grandma',
+                message: "I know. But remember, every challenge is a chance to connect with your child. Your love is their greatest teacher.",
+                options: [
+                    { text: "How can I be a better teacher?", nextStep: 3 },
+                ]
+            },
+            {
+                id: 2,
+                speaker: 'grandma',
+                message: "That's a beautiful thought. The best guidance comes from listening to your child's heart, and your own.",
+                options: [
+                    { text: "Tell me more.", nextStep: 3 },
+                ]
+            },
+            {
+                id: 3,
+                speaker: 'grandma',
+                message: "Children are like little seeds. With love, patience, and encouragement, they blossom in their own time.",
+                options: [
+                    { text: "How can I encourage them in this digital age?", nextStep: 4 }
+                ]
+            },
+            {
+                id: 4,
+                speaker: 'grandma',
+                message: "That's a wise question. It's about finding the right tools. Tools that are safe, fun, and help them grow.",
+                options: [
+                    { text: "What kind of tools?", nextStep: 5 }
+                ]
+            },
+            {
+                id: 5,
+                speaker: 'grandma',
+                message: "This is where Chizel comes in. It's a special place I've seen, where screen time becomes skill time. It’s a garden for your child’s mind.",
+                options: [
+                    { text: "Tell me about Chizel.", nextStep: 6 }
+                ]
+            },
+            {
+                id: 6,
+                speaker: 'grandma',
+                message: "Chizel is a world of games and stories that teach and inspire. It's a safe space, built with love, just like a grandmother's home.",
+                options: [
+                    { text: "How does it help my child?", nextStep: 7 }
+                ]
+            },
+             {
+                id: 7,
+                speaker: 'grandma',
+                message: "It helps them learn, think, and grow, all while playing. And it gives you, the parent, a chance to see them shine.",
+                options: [
+                    { text: "Thank you for sharing this.", nextStep: 8 }
+                ]
+            },
+            {
+                id: 8,
+                speaker: 'grandma',
+                message: "You're doing a wonderful job. Remember to be kind to yourself, too. A happy parent raises a happy child.",
+                options: [
+                     { text: "Learn more about Chizel", action: 'promo' },
+                ]
+            },
+        ];
+
+        const elements = {
+            grandmaSpeech: document.getElementById('grandma-speech'),
+            grandmaBubbleContent: document.querySelector('#grandma-speech .bubble-content'),
+            optionsContainer: document.querySelector('.options-container'),
+            starsContainer: document.getElementById('stars'),
+            chizelPromo: document.getElementById('chizel-promo'),
+        };
+
+        function init() {
+            createStars();
+            showStoryStep(0);
+        }
+
+        function createStars() {
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = `${Math.random() * 3 + 1}px`;
+                star.style.height = star.style.width;
+                star.style.left = `${Math.random() * 100}%`;
+                star.style.top = `${Math.random() * 100}%`;
+                star.style.opacity = Math.random();
+                star.style.animationDelay = `${Math.random() * 5}s`;
+                star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+                elements.starsContainer.appendChild(star);
+            }
+        }
+
+        function showStoryStep(stepIndex) {
+            const step = storyScript.find(s => s.id === stepIndex);
+            if (!step) return;
+
+            elements.optionsContainer.innerHTML = '';
+            elements.optionsContainer.classList.remove('visible');
+            
+            typeMessage(step.message, elements.grandmaBubbleContent, () => {
+                if (step.options) {
+                    showOptions(step.options);
+                }
+                if (step.action) {
+                    performAction(step.action);
+                }
+            });
+            elements.grandmaSpeech.classList.add('visible');
+        }
+
+        function typeMessage(message, element, callback) {
+            const chars = Array.from(message);
+            let i = 0;
+            element.textContent = '';
+
+            function typing() {
+                if (i < chars.length) {
+                    element.textContent += chars[i];
+                    i++;
+                    setTimeout(typing, 20);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            typing();
+        }
+
+        function showOptions(options) {
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-btn';
+                button.textContent = option.text;
+                button.addEventListener('click', () => {
+                    if (option.nextStep !== undefined) {
+                        showStoryStep(option.nextStep);
+                    }
+                    if (option.action) {
+                        performAction(option.action);
+                    }
+                });
+                elements.optionsContainer.appendChild(button);
+            });
+            elements.optionsContainer.classList.add('visible');
+        }
+        
+        function performAction(action) {
+            if (action === 'promo') {
+                showChizelPromo();
+            }
+        }
+        
+        function showChizelPromo() {
+            elements.chizelPromo.innerHTML = `
+                <div style="text-align: center;">
+                    <h3 style="color: var(--secondary);">Explore Chizel</h3>
+                    <p style="margin: 20px 0;">A safe, ad-free world of learning and fun for your child.</p>
+                    <a href="#" class="option-btn">Visit Chizel</a>
+                </div>
+            `;
+            elements.chizelPromo.classList.add('visible');
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
