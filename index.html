@@ -15,6 +15,29 @@
             --light: #E0F7FF;
             --grandma-color: #9013FE;
             --space-blue: #1A2E40;
+
+            /* Define fixed heights/min-heights for critical elements */
+            --header-height: 70px; 
+            --options-min-height: 140px; /* Minimum height for options area */
+            --character-visual-height: 250px; /* Desired visual height of character */
+            --bubble-margin-bottom: 15px; /* Space between bubble and character */
+            --bubble-pointer-height: 18px; /* Height of the speech bubble's pointer */
+            --content-area-padding-vertical: 20px; /* Padding for main content */
+        }
+
+        /* Adjustments for smaller screens */
+        @media (max-width: 500px) {
+            :root {
+                --header-height: 60px; 
+                --options-min-height: 120px;
+                --character-visual-height: 180px;
+                --content-area-padding-vertical: 10px;
+            }
+        }
+        @media (min-width: 501px) and (max-width: 768px) {
+            :root {
+                --character-visual-height: 220px; 
+            }
         }
 
         * {
@@ -40,9 +63,7 @@
             height: 100%;
             overflow: hidden;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column; /* Stacks header, content, options vertically */
         }
 
         .space-background {
@@ -75,12 +96,13 @@
         .header {
             position: relative;
             width: 100%;
+            height: var(--header-height); /* Fixed height */
             padding: 15px;
             z-index: 20;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-shrink: 0; /* Prevents header from shrinking */
+            flex-shrink: 0; /* Prevents shrinking */
         }
         
         .back-btn {
@@ -108,7 +130,7 @@
         }
         
         .logo-container {
-            position: absolute;
+            position: absolute; /* positioned relative to header */
             left: 50%;
             transform: translateX(-50%);
             top: 15px;
@@ -135,36 +157,30 @@
             letter-spacing: 1px;
             opacity: 0.8;
             white-space: nowrap;
+            /* Position tagline relative to logo-container to avoid overlap */
+            position: absolute;
+            bottom: -20px; /* Adjust to sit below the logo image */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 21; 
         }
         
         .header > div:last-child {
-            width: 40px;
+            width: 40px; /* Placeholder for balance */
             height: 40px;
         }
 
-        .main-content-area {
-            flex-grow: 1; /* Allows this to take up remaining vertical space */
-            width: 100%;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-end; /* Pushes content towards the bottom by default */
-            align-items: center;
-            position: relative;
-            padding-bottom: 20px; /* Provides space for options container */
-        }
-
         .character-bubble-group {
-            display: flex;
-            flex-direction: column; /* Stack bubble on top of character */
-            align-items: center;
+            flex-grow: 1; /* Takes all available vertical space between header and options */
             width: 100%;
-            flex-grow: 1; /* Allows this group to take up space, pushing options down */
-            justify-content: flex-end; /* Positions the character/bubble at the bottom of its available space */
-            padding: 10px; /* Small padding to prevent elements from touching edges */
-            position: relative; /* For absolute positioning of bubble's max-height */
+            display: flex;
+            flex-direction: column; /* Stacks bubble on top of character */
+            align-items: center;
+            justify-content: flex-end; /* Pushes content to the bottom of this group */
+            padding: var(--content-area-padding-vertical) 10px; /* Add vertical padding */
+            position: relative; /* For bubble positioning relative to this group */
         }
         
-        /* CHARACTER MOVEMENT ANIMATION */
         @keyframes characterFloat {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-8px); }
@@ -172,12 +188,14 @@
 
         .character {
             width: clamp(200px, 45vw, 320px);
-            position: relative;
+            min-height: var(--character-visual-height); /* Ensure character always has space */
             animation: characterFloat 4s ease-in-out infinite;
             transition: transform 0.3s ease;
-            z-index: 5; /* Ensure character is above other elements if needed */
-            flex-shrink: 0; /* Prevent character from shrinking */
-            margin-top: auto; /* Push character to bottom of its flex container */
+            z-index: 5;
+            flex-shrink: 0; /* Prevents character from shrinking */
+            display: flex;
+            align-items: flex-end; /* Align image to bottom of character div */
+            position: relative; /* For stacking context with bubble */
         }
 
         .character:hover {
@@ -187,11 +205,11 @@
         .character-image img {
             width: 100%;
             height: auto;
+            max-height: 100%; 
             display: block;
             filter: drop-shadow(0 10px 25px rgba(144, 19, 254, 0.5));
         }
 
-        /* EXPANDED and WIDER SPEECH BUBBLE */
         .speech-bubble {
             background-color: var(--dark);
             color: var(--light);
@@ -209,30 +227,24 @@
             font-family: 'Comic Neue', cursive;
             word-wrap: break-word;
             text-align: center;
-            margin-bottom: -15px; /* Pull bubble slightly into character */
+            margin-bottom: var(--bubble-margin-bottom);
             border: 3px solid var(--grandma-color);
-
-            /* New: Responsive height and overflow for long content */
-            max-height: calc(100vh - 200px - var(--character-height-estimate, 250px)); /* Dynamic max-height */
-            overflow-y: auto; /* Allow scrolling if content is too long */
-            position: relative; /* For the ::after pseudo-element */
-            flex-grow: 0; /* Do not grow, rely on content for height */
-            flex-shrink: 1; /* Allow it to shrink if needed */
-        }
-        /* Estimate character height for max-height calculation */
-        @media (max-width: 500px) {
-            .speech-bubble {
-                width: 90%;
-                max-width: 350px;
-                max-height: calc(100vh - 180px - var(--character-height-estimate-mobile, 180px));
-            }
-        }
-        @media (min-width: 501px) and (max-width: 768px) {
-             .speech-bubble {
-                max-height: calc(100vh - 200px - var(--character-height-estimate-tablet, 220px));
-            }
+            
+            /* Crucial: Calculate max-height and enable internal scrolling */
+            /* This calculation is relative to the *available space* within character-bubble-group */
+            max-height: calc(100% - var(--character-visual-height) - var(--bubble-margin-bottom) - var(--bubble-pointer-height));
+            overflow-y: auto; /* Enable internal scrolling */
+            flex-shrink: 1; /* Allows the bubble to shrink if content is small */
+            flex-grow: 0; /* Prevents it from growing beyond its content or max-height */
+            display: flex; 
+            flex-direction: column;
+            justify-content: center;
         }
 
+        /* Ensure scrollbar doesn't clip content */
+        .speech-bubble .bubble-content ul {
+            padding-right: 15px; /* Add padding for scrollbar */
+        }
 
         .speech-bubble.visible {
             transform: scale(1);
@@ -241,7 +253,7 @@
         .speech-bubble::after {
             content: '';
             position: absolute;
-            bottom: -18px;
+            bottom: -18px; /* Position pointer below the bubble */
             left: 50%;
             transform: translateX(-50%);
             width: 0;
@@ -267,9 +279,7 @@
             30% { transform: translateY(-7px); opacity: 1; }
         }
 
-        /* OPTIONS CONTAINER - Positioned at bottom */
         .options-container {
-            position: relative;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -285,9 +295,10 @@
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
-            flex-shrink: 0; /* Prevent from shrinking */
-            margin-top: auto; /* Push to bottom of main-content-area */
-            margin-bottom: 20px;
+            flex-shrink: 0; /* CRUCIAL: Prevents options container from shrinking */
+            margin-bottom: var(--content-area-padding-vertical); /* Match main content padding for bottom spacing */
+            min-height: var(--options-min-height); /* Ensure a minimum height for the container */
+            align-items: center; /* Vertically center buttons if there's extra space */
         }
 
         .options-container.visible { opacity: 1; pointer-events: all; }
@@ -305,16 +316,16 @@
             text-align: center;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             box-shadow: 0 5px 20px rgba(80, 227, 194, 0.4);
-            flex-grow: 1;
-            min-width: 160px;
+            flex-grow: 1; /* Allows buttons to grow to fill available space */
+            min-width: 160px; /* Minimum width for buttons */
         }
         
         @media (max-width: 500px) {
-            .option-btn { width: 100%; flex-grow: 0; }
+            .option-btn { width: 100%; flex-grow: 0; } /* On small screens, buttons stack */
             .options-container { padding: 15px; }
         }
         @media (min-width: 501px) and (max-width: 768px) {
-            .option-btn { width: calc(50% - 10px); flex-grow: 0; }
+            .option-btn { width: calc(50% - 10px); flex-grow: 0; } /* On tablets, two columns */
         }
 
         .option-btn:hover { transform: translateY(-5px) scale(1.05); }
@@ -340,25 +351,23 @@
             <div></div>
         </div>
 
-        <div class="main-content-area">
-            <div class="character-bubble-group">
-                <div class="speech-bubble" id="grandma-speech">
-                    <div class="bubble-content"></div>
-                    <div class="typing-indicator" id="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
-                </div>
-                <div class="character">
-                    <div class="character-image">
-                        <img src="assets/dadi.png" alt="Grandma character">
-                    </div>
+        <div class="character-bubble-group">
+            <div class="speech-bubble" id="grandma-speech">
+                <div class="bubble-content"></div>
+                <div class="typing-indicator" id="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
                 </div>
             </div>
-
-            <div class="options-container" id="options-container"></div>
+            <div class="character">
+                <div class="character-image">
+                    <img src="assets/dadi.png" alt="Grandma character">
+                </div>
+            </div>
         </div>
+
+        <div class="options-container" id="options-container"></div>
     </div>
 
     <script>
