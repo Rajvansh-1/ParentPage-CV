@@ -30,7 +30,6 @@
             color: var(--light);
             height: 100vh;
             overflow: hidden;
-            perspective: 1000px;
             font-size: 18px;
             touch-action: manipulation;
         }
@@ -38,8 +37,12 @@
         .game-container {
             position: relative;
             width: 100%;
-            height: 100vh;
+            height: 100%;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .space-background {
@@ -48,14 +51,12 @@
             height: 100%;
             background: radial-gradient(ellipse at bottom, var(--space-blue) 0%, #000000 100%);
             z-index: -2;
-            overflow: hidden;
         }
 
         .stars {
             position: absolute;
             width: 100%;
             height: 100%;
-            background: transparent;
             z-index: -1;
         }
 
@@ -70,92 +71,192 @@
             0%, 100% { opacity: 0.2; }
             50% { opacity: 1; }
         }
+        
+        .header {
+            position: relative;
+            width: 100%;
+            padding: 15px;
+            z-index: 20;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .back-btn {
+            background: rgba(74, 144, 226, 0.3);
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .back-btn:hover {
+            background: rgba(74, 144, 226, 0.5);
+            transform: scale(1.1);
+        }
 
-        .character-container {
+        .back-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+        
+        .logo-container {
             position: absolute;
-            bottom: 5%;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 15px;
+            text-align: center;
+            width: fit-content;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .logo-container:hover {
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        .logo {
+            height: 50px;
+            filter: drop-shadow(0 0 10px var(--secondary));
+            margin-bottom: 5px;
+        }
+
+        .logo-tagline {
+            font-size: 12px;
+            color: var(--secondary);
+            text-shadow: 0 0 5px var(--secondary);
+            letter-spacing: 1px;
+            opacity: 0.8;
+            white-space: nowrap;
+        }
+        
+        .header > div:last-child {
+            width: 40px;
+            height: 40px;
+        }
+
+        .main-content-area {
+            flex-grow: 1;
             width: 100%;
             display: flex;
-            justify-content: center;
-            padding: 0 5%;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            position: relative;
+        }
+
+        /* CHARACTER AND BUBBLE WRAPPER - Reorganized to stack bubble on top */
+        .character-wrapper {
+            position: relative; /* Changed from absolute to flow better with content */
+            width: clamp(200px, 45vw, 320px);
             z-index: 5;
-            left: 0;
-            right: 0;
+            display: flex;
+            flex-direction: column; /* Changed to column to stack bubble on top */
+            align-items: center;
+            margin-bottom: 20px; /* Space from options container */
+            flex-grow: 1; /* Allow to take available space */
+            justify-content: flex-end; /* Push content to bottom of character-wrapper */
+        }
+        
+        /* CHARACTER MOVEMENT ANIMATION */
+        @keyframes characterFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
         }
 
         .character {
+            width: 100%;
             position: relative;
-            width: 40%;
-            max-width: 300px;
-            bottom: 0;
-            margin: 0;
-            transition: all 0.3s ease;
+            animation: characterFloat 4s ease-in-out infinite; /* Added gentle movement */
+            transition: transform 0.3s ease;
+            order: 2; /* Ensure character is below the bubble within this flex column */
         }
 
         .character:hover {
-            transform: translateY(-10px) scale(1.05);
+            transform: scale(1.05);
         }
 
         .character-image img {
             width: 100%;
             height: auto;
-            object-fit: contain;
-            filter: drop-shadow(0 10px 20px rgba(144, 19, 254, 0.5));
-            position: relative;
+            display: block;
+            filter: drop-shadow(0 10px 25px rgba(144, 19, 254, 0.5));
         }
 
+        /* EXPANDED and WIDER SPEECH BUBBLE - positioned directly above character */
         .speech-bubble {
-            position: absolute;
-            padding: 15px;
-            border-radius: 20px;
-            max-width: 300px;
-            font-size: 20px;
-            line-height: 1.4;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-            transition: all 0.2s ease;
+            background-color: var(--dark);
+            color: var(--light);
+            padding: 20px 25px;
+            border-radius: 40px;
+            width: clamp(280px, 80vw, 450px); /* Max width adjusted for better fit */
+            max-width: 450px; /* Explicit max-width */
+            font-size: clamp(16px, 3vw, 20px);
+            line-height: 1.5;
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
             transform: scale(0);
-            transform-origin: bottom;
+            transform-origin: bottom center;
             z-index: 6;
             font-family: 'Comic Neue', cursive;
+            word-wrap: break-word;
+            text-align: center;
+            margin-bottom: 15px; /* Space between bubble and character */
+            border: 3px solid var(--grandma-color);
+            order: 1; /* Ensure bubble is above the character within character-wrapper */
         }
+        /* Adjust width/position for smaller screens to ensure it's not too wide */
+        @media (max-width: 600px) {
+            .speech-bubble {
+                width: 90%; /* Take 90% of screen width */
+                max-width: 350px; /* Adjust max-width for smaller screens */
+            }
+        }
+
 
         .speech-bubble.visible {
             transform: scale(1);
         }
 
-        .grandma-bubble {
-            background-color: var(--dark);
-            color: var(--light);
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 100%;
-            margin-bottom: 20px;
-            border: 3px solid var(--grandma-color);
-            box-shadow: 0 0 20px var(--grandma-color);
-        }
-
-        .grandma-bubble::after {
+        .speech-bubble::after {
             content: '';
             position: absolute;
+            bottom: -18px;
             left: 50%;
             transform: translateX(-50%);
-            top: 100%;
             width: 0;
             height: 0;
-            border: 15px solid transparent;
+            border: 18px solid transparent;
             border-top-color: var(--dark);
             border-bottom: 0;
+            z-index: -1;
         }
         
-        .bubble-content {
-            min-height: 40px;
+        .bubble-content { min-height: 40px; }
+        .bubble-content ul { text-align: left; padding-left: 25px; margin-top: 10px; list-style-type: '🌟 '; }
+        .bubble-content li { margin-bottom: 8px; }
+        
+        .typing-indicator { display: flex; justify-content: center; margin-top: 15px; gap: 8px; opacity: 0; transition: opacity 0.3s ease; }
+        .typing-indicator.active { opacity: 1; }
+        .typing-dot { width: 10px; height: 10px; background-color: var(--light); border-radius: 50%; animation: typing 1.4s infinite ease-in-out; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+            30% { transform: translateY(-7px); opacity: 1; }
         }
 
+        /* OPTIONS CONTAINER - Positioned at bottom */
         .options-container {
-            position: absolute;
-            bottom: 10%;
-            left: 50%;
-            transform: translateX(-50%);
+            position: relative;
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
@@ -163,60 +264,48 @@
             width: 90%;
             max-width: 700px;
             padding: 20px;
+            background-color: rgba(26, 46, 64, 0.95);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(80, 227, 194, 0.3);
+            border: 3px solid var(--secondary);
             z-index: 10;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
+            flex-shrink: 0;
+            margin-bottom: 20px;
         }
 
-        .options-container.visible {
-            opacity: 1;
-            pointer-events: all;
-        }
+        .options-container.visible { opacity: 1; pointer-events: all; }
 
         .option-btn {
-            padding: 15px 25px;
+            padding: 18px 30px;
             border: none;
             border-radius: 50px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             font-family: 'Fredoka', sans-serif;
-            font-size: 18px;
+            font-size: clamp(17px, 3.8vw, 20px);
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
             text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
             box-shadow: 0 5px 20px rgba(80, 227, 194, 0.4);
-        }
-
-        .option-btn:hover {
-            transform: translateY(-5px) scale(1.05);
+            flex-grow: 1;
+            min-width: 160px;
         }
         
-        .chizel-promo {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            width: 90%;
-            max-width: 600px;
-            background: linear-gradient(135deg, rgba(26, 46, 64, 0.98) 0%, rgba(26, 46, 64, 0.98) 100%);
-            border-radius: 20px;
-            padding: 25px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
-            border: 3px solid var(--secondary);
-            z-index: 30;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.5s ease;
-            backdrop-filter: blur(10px);
+        @media (max-width: 500px) {
+            .option-btn { width: 100%; flex-grow: 0; }
+            .options-container { padding: 15px; }
+            .character-wrapper { width: clamp(180px, 55vw, 320px); }
+        }
+        @media (min-width: 501px) and (max-width: 768px) {
+            .option-btn { width: calc(50% - 10px); flex-grow: 0; }
         }
 
-        .chizel-promo.visible {
-            transform: translate(-50%, -50%) scale(1);
-            opacity: 1;
-            pointer-events: all;
-        }
+        .option-btn:hover { transform: translateY(-5px) scale(1.05); }
+        
     </style>
 </head>
 <body>
@@ -225,106 +314,67 @@
             <div class="stars" id="stars"></div>
         </div>
 
-        <div class="character-container">
-            <div class="character">
-                <div class="character-image">
-                    <img src="https://i.imgur.com/nO8oA7s.png" alt="Grandma character">
-                </div>
-                <div class="speech-bubble grandma-bubble" id="grandma-speech">
-                    <div class="bubble-content"></div>
-                </div>
+        <div class="header">
+            <button class="back-btn" onclick="goBackOrClose()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </button>
+            <div class="logo-container">
+                <img src="assets/logo.png" alt="Chizel Logo" class="logo">
+                <div class="logo-tagline">Turning Screen Time To Skill Time!</div>
             </div>
+            <div></div>
         </div>
 
-        <div class="options-container"></div>
-        
-        <div class="chizel-promo" id="chizel-promo">
+        <div class="main-content-area">
+            <div class="character-wrapper">
+                <div class="speech-bubble" id="grandma-speech">
+                    <div class="bubble-content"></div>
+                    <div class="typing-indicator" id="typing-indicator">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+                <div class="character">
+                    <div class="character-image">
+                        <img src="assets/dadi.png" alt="Grandma character">
+                    </div>
+                </div>
+            </div>
+
+            <div class="options-container" id="options-container"></div>
         </div>
     </div>
 
     <script>
         const storyScript = [
-            {
-                id: 0,
-                speaker: 'grandma',
-                message: "Hello, dear parent. I'm here to share some warmth and wisdom. Parenting is a journey of the heart.",
-                options: [
-                    { text: "It can be tough sometimes.", nextStep: 1 },
-                    { text: "I'm looking for some guidance.", nextStep: 2 }
-                ]
-            },
-            {
-                id: 1,
-                speaker: 'grandma',
-                message: "I know. But remember, every challenge is a chance to connect with your child. Your love is their greatest teacher.",
-                options: [
-                    { text: "How can I be a better teacher?", nextStep: 3 },
-                ]
-            },
-            {
-                id: 2,
-                speaker: 'grandma',
-                message: "That's a beautiful thought. The best guidance comes from listening to your child's heart, and your own.",
-                options: [
-                    { text: "Tell me more.", nextStep: 3 },
-                ]
-            },
-            {
-                id: 3,
-                speaker: 'grandma',
-                message: "Children are like little seeds. With love, patience, and encouragement, they blossom in their own time.",
-                options: [
-                    { text: "How can I encourage them in this digital age?", nextStep: 4 }
-                ]
-            },
-            {
-                id: 4,
-                speaker: 'grandma',
-                message: "That's a wise question. It's about finding the right tools. Tools that are safe, fun, and help them grow.",
-                options: [
-                    { text: "What kind of tools?", nextStep: 5 }
-                ]
-            },
-            {
-                id: 5,
-                speaker: 'grandma',
-                message: "This is where Chizel comes in. It's a special place I've seen, where screen time becomes skill time. It’s a garden for your child’s mind.",
-                options: [
-                    { text: "Tell me about Chizel.", nextStep: 6 }
-                ]
-            },
-            {
-                id: 6,
-                speaker: 'grandma',
-                message: "Chizel is a world of games and stories that teach and inspire. It's a safe space, built with love, just like a grandmother's home.",
-                options: [
-                    { text: "How does it help my child?", nextStep: 7 }
-                ]
-            },
-             {
-                id: 7,
-                speaker: 'grandma',
-                message: "It helps them learn, think, and grow, all while playing. And it gives you, the parent, a chance to see them shine.",
-                options: [
-                    { text: "Thank you for sharing this.", nextStep: 8 }
-                ]
-            },
-            {
-                id: 8,
-                speaker: 'grandma',
-                message: "You're doing a wonderful job. Remember to be kind to yourself, too. A happy parent raises a happy child.",
-                options: [
-                     { text: "Learn more about Chizel", action: 'promo' },
-                ]
-            },
+            { id: 0, message: "Hey dear! Struggling to understand your own children or what they might do next? Don’t worry — I’ve been there too, let Granny help you out.", options: [{ text: "Let's begin", nextStep: 1 }] },
+            { id: 1, message: "Are you an office-going parent?", options: [{ text: "Yes", nextStep: 2 }, { text: "No", nextStep: 6 }] },
+            { id: 2, message: "Do you often feel like you don’t have the energy to play with your children after long office hours?", options: [{ text: "Yes", nextStep: 3 }, { text: "No", nextStep: 4 }] },
+            { id: 3, message: "Well dear, I understand how exhausting it can be. I’ll share some simple activities that will only take 5 minutes every day.", options: [{ text: "Show me", nextStep: 100 }] },
+            { id: 4, message: "That’s lovely! But tell me, do you still face challenges in managing your children at home?", options: [{ text: "Yes", nextStep: 5 }, { text: "No", nextStep: 9 }] },
+            { id: 5, message: "Alright dear, let me guide you through a few tricks that might make things easier. These will only take 5 minutes each day.", options: [{ text: "Okay, I'm listening", nextStep: 100 }] },
+            { id: 6, message: "So dear, do you sometimes face challenges in managing or handling your children at home?", options: [{ text: "Yes", nextStep: 7 }, { text: "No", nextStep: 8 }] },
+            { id: 7, message: "I see. Don’t worry, I’ve got a few ideas that will make things smoother for you. They only take 5 minutes a day.", options: [{ text: "Please share them", nextStep: 100 }] },
+            { id: 8, message: "That’s wonderful! Even so, I’ll share a few little ideas to keep your connection strong.", options: [{ text: "I'd love that", nextStep: 100 }] },
+            { id: 9, message: "That’s wonderful to hear! Still, I’ll share some tips to keep strengthening your bond.", options: [{ text: "Yes, please", nextStep: 100 }] },
+            { id: 100, message: "Here's the list of 5 simple activities you can do with your children every day to build a beautiful bond.", options: [{ text: "I'm Ready!", nextStep: 101 }] },
+            { id: 101, message: `For You:<ul><li><strong>Story Swap:</strong> Share a short story from your childhood.</li><li><strong>2-Minute Dance:</strong> Have a silly dance break.</li><li><strong>Question Jar:</strong> Pull out a fun question.</li><li><strong>Gratitude Game:</strong> Say one thing you’re thankful for.</li><li><strong>Adventure Talk:</strong> Share the best part of your day.</li></ul>`, options: [{ text: "That's helpful!", nextStep: 102 }] },
+            { id: 102, message: "And here are some engaging activities you can give your children to do to build their independence.", options: [{ text: "What are they?", nextStep: 103 }] },
+            { id: 103, message: `For Your Child:<ul><li><strong>Treasure Hunt:</strong> Hide 3 simple objects.</li><li><strong>5-Minute Build:</strong> Build with blocks or paper.</li><li><strong>Art Dash:</strong> Draw their 'dream house'.</li><li><strong>Kindness Task:</strong> Do one kind act for a family member.</li><li><strong>Role Play:</strong> Pretend to be a teacher.</li></ul>`, options: [{ text: "Great ideas!", nextStep: 104 }] },
+            { id: 104, message: "To make it more exciting, try a reward system. Give a star for every task they complete. At the end of the week, 6 stars could mean an extra bedtime story!", options: [{ text: "I love that!", nextStep: 105 }] },
+            { id: 105, message: "Feel free to share your progress with me. It's lovely to see the bond grow.", options: [{ text: "Thank you, Granny", nextStep: 106 }] },
+            { id: 106, message: "Remember, parenting isn't about being perfect, it's about being present. You are your child's whole world, and you're doing an amazing job. You've got this!", options: [{ text: "Start Over", nextStep: 1 }] }
         ];
 
         const elements = {
             grandmaSpeech: document.getElementById('grandma-speech'),
             grandmaBubbleContent: document.querySelector('#grandma-speech .bubble-content'),
-            optionsContainer: document.querySelector('.options-container'),
+            typingIndicator: document.getElementById('typing-indicator'),
+            optionsContainer: document.getElementById('options-container'),
             starsContainer: document.getElementById('stars'),
-            chizelPromo: document.getElementById('chizel-promo'),
         };
 
         function init() {
@@ -354,27 +404,41 @@
             elements.optionsContainer.innerHTML = '';
             elements.optionsContainer.classList.remove('visible');
             
+            elements.grandmaSpeech.classList.add('visible');
+            elements.grandmaBubbleContent.innerHTML = '';
+            elements.typingIndicator.classList.add('active');
+
             typeMessage(step.message, elements.grandmaBubbleContent, () => {
+                elements.typingIndicator.classList.remove('active');
                 if (step.options) {
                     showOptions(step.options);
                 }
-                if (step.action) {
-                    performAction(step.action);
-                }
             });
-            elements.grandmaSpeech.classList.add('visible');
         }
-
+        
         function typeMessage(message, element, callback) {
             const chars = Array.from(message);
             let i = 0;
-            element.textContent = '';
+            element.innerHTML = '';
 
             function typing() {
                 if (i < chars.length) {
-                    element.textContent += chars[i];
-                    i++;
-                    setTimeout(typing, 20);
+                    if (chars[i] === '<') {
+                        let tag = '';
+                        while (i < chars.length && chars[i] !== '>') {
+                            tag += chars[i];
+                            i++;
+                        }
+                        if (i < chars.length) {
+                           tag += chars[i];
+                           i++;
+                        }
+                        element.innerHTML += tag;
+                    } else {
+                        element.innerHTML += chars[i];
+                        i++;
+                    }
+                    setTimeout(typing, 30);
                 } else if (callback) {
                     callback();
                 }
@@ -391,30 +455,18 @@
                     if (option.nextStep !== undefined) {
                         showStoryStep(option.nextStep);
                     }
-                    if (option.action) {
-                        performAction(option.action);
-                    }
                 });
                 elements.optionsContainer.appendChild(button);
             });
             elements.optionsContainer.classList.add('visible');
         }
-        
-        function performAction(action) {
-            if (action === 'promo') {
-                showChizelPromo();
+
+        function goBackOrClose() {
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.close();
             }
-        }
-        
-        function showChizelPromo() {
-            elements.chizelPromo.innerHTML = `
-                <div style="text-align: center;">
-                    <h3 style="color: var(--secondary);">Explore Chizel</h3>
-                    <p style="margin: 20px 0;">A safe, ad-free world of learning and fun for your child.</p>
-                    <a href="#" class="option-btn">Visit Chizel</a>
-                </div>
-            `;
-            elements.chizelPromo.classList.add('visible');
         }
 
         document.addEventListener('DOMContentLoaded', init);
