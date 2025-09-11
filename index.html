@@ -16,27 +16,10 @@
             --grandma-color: #9013FE;
             --space-blue: #1A2E40;
 
-            /* Define fixed heights/min-heights for critical elements */
-            --header-height: 80px; /* Increased to give tagline space */
-            --options-min-height: 140px; 
-            --character-visual-height: 250px; 
-            --bubble-margin-bottom: 15px; 
-            --bubble-pointer-height: 18px;
-            --main-content-padding-vertical: 10px;
-        }
-
-        /* Adjustments for smaller screens */
-        @media (max-width: 500px) {
-            :root {
-                --header-height: 70px; 
-                --options-min-height: 120px;
-                --character-visual-height: 180px;
-            }
-        }
-        @media (min-width: 501px) and (max-width: 768px) {
-            :root {
-                --character-visual-height: 220px; 
-            }
+            --header-height: clamp(70px, 10vh, 80px);
+            --character-height: clamp(180px, 30vh, 250px);
+            --options-bottom-padding: clamp(15px, 4vh, 30px);
+            --options-side-padding: clamp(15px, 4vw, 30px);
         }
 
         * {
@@ -95,16 +78,15 @@
         .header {
             position: relative;
             width: 100%;
-            height: var(--header-height); /* Fixed height */
+            height: var(--header-height);
             padding: 15px;
-            z-index: 20;
+            z-index: 50;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
         }
         
-        /* Added ID to the back button */
         .back-btn { 
             background: rgba(74, 144, 226, 0.3);
             border: 2px solid var(--primary);
@@ -167,100 +149,118 @@
         .main-content-area {
             flex-grow: 1;
             width: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: var(--main-content-padding-vertical) 0;
-            justify-content: flex-end; /* Push content to bottom */
-        }
-
-        .character-bubble-group {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            width: 100%;
-            flex-grow: 1;
-            justify-content: flex-end;
-            padding: 0 10px;
-            position: relative;
-        }
-        
-        @keyframes characterFloat {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
+            position: relative; /* Crucial for positioning children */
         }
 
         .character {
-            width: clamp(200px, 45vw, 320px);
-            min-height: var(--character-visual-height);
-            animation: characterFloat 4s ease-in-out infinite;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            height: var(--character-height);
+            z-index: 10;
             transition: transform 0.3s ease;
-            z-index: 5;
-            flex-shrink: 0;
-            display: flex;
-            align-items: flex-end;
-            position: relative;
         }
-
+        
         .character:hover {
-            transform: scale(1.05);
+            transform: translateX(-50%) scale(1.05);
         }
 
-        .character-image img {
-            width: 100%;
-            height: auto;
-            max-height: 100%; 
+        @keyframes breathe {
+            0%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(1.02); }
+        }
+
+        .character img {
             display: block;
+            height: 100%;
+            width: auto;
             filter: drop-shadow(0 10px 25px rgba(144, 19, 254, 0.5));
+            transform-origin: bottom center;
+            animation: breathe 5s ease-in-out infinite;
         }
 
         .speech-bubble {
+            position: absolute;
+            bottom: calc(var(--character-height) + 10px); /* Adjusted for thought bubble */
+            left: 50%;
+            transform: translateX(-50%) scale(0);
+            transform-origin: bottom center;
             background-color: var(--dark);
             color: var(--light);
-            padding: 20px 25px;
-            border-radius: 40px;
-            width: clamp(280px, 80vw, 450px);
-            max-width: 450px;
+            padding: 25px 30px;
+            border: 3px solid var(--grandma-color);
+            width: clamp(280px, 90vw, 450px);
             font-size: clamp(16px, 3vw, 20px);
             line-height: 1.5;
+            text-align: center;
             box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            transform: scale(0);
-            transform-origin: bottom center;
-            z-index: 6;
             font-family: 'Comic Neue', cursive;
             word-wrap: break-word;
-            text-align: center;
-            margin-bottom: var(--bubble-margin-bottom);
-            border: 3px solid var(--grandma-color);
+            z-index: 20;
             
-            /* Crucial: Calculate max-height and enable internal scrolling */
-            max-height: calc(100vh - var(--header-height) - var(--options-min-height) - var(--character-visual-height) - var(--bubble-margin-bottom) - (var(--main-content-padding-vertical) * 2));
-            overflow-y: auto; /* Enable internal scrolling */
-            flex-shrink: 1; 
-            display: flex; 
-            flex-direction: column;
-            justify-content: center;
+            /* Classic cloud shape - adjusted for more distinct curves */
+            border-radius: 20px 100px 70px 100px / 100px 30px 100px 30px;
+            
+            /* Transitions */
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            
+            /* Optimized height and scrolling */
+            max-height: calc(100vh - var(--header-height) - var(--character-height) - 130px);
+            overflow-y: auto;
         }
 
         .speech-bubble.visible {
-            transform: scale(1);
+            transform: translateX(-50%) scale(1);
         }
 
-        .speech-bubble::after {
+        /* Thought bubble tail elements */
+        .speech-bubble::before,
+        .speech-bubble::after,
+        .speech-bubble .tail-extra-1,
+        .speech-bubble .tail-extra-2 {
             content: '';
             position: absolute;
-            bottom: -18px;
+            background-color: var(--dark);
+            border-radius: 50%;
+            border: 3px solid var(--grandma-color);
+            z-index: 19; /* Behind the main bubble, but above character */
+        }
+
+        /* Large circle */
+        .speech-bubble::before {
+            width: 30px;
+            height: 30px;
+            bottom: -35px; /* Position to connect */
             left: 50%;
-            transform: translateX(-50%);
-            width: 0;
-            height: 0;
-            border: 18px solid transparent;
-            border-top-color: var(--dark);
-            border-bottom: 0;
-            z-index: -1;
+            transform: translateX(calc(-50% - 20px)); /* Shift left from center */
+        }
+
+        /* Medium circle */
+        .speech-bubble::after {
+            width: 20px;
+            height: 20px;
+            bottom: -50px; /* Position below large */
+            left: 50%;
+            transform: translateX(calc(-50% - 5px)); /* Shift right from large */
+        }
+
+        /* Small circle (part of tail, inside .bubble-content for proper layering) */
+        .speech-bubble .tail-extra-1 {
+            width: 12px;
+            height: 12px;
+            bottom: -60px; /* Connect to character */
+            left: 50%;
+            transform: translateX(calc(-50% + 15px)); /* Shift right more */
+            border: 2px solid var(--grandma-color); /* Thinner border for small */
+            background-color: var(--dark); /* Ensure it's dark fill */
+            z-index: 18; /* Behind character, but still visible */
         }
         
+        .speech-bubble::-webkit-scrollbar { width: 8px; }
+        .speech-bubble::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
+        .speech-bubble::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+
         .bubble-content { min-height: 40px; }
         .bubble-content ul { text-align: left; padding-left: 25px; margin-top: 10px; list-style-type: '🌟 '; }
         .bubble-content li { margin-bottom: 8px; }
@@ -276,58 +276,70 @@
             30% { transform: translateY(-7px); opacity: 1; }
         }
 
-        .options-container {
-            display: flex;
-            flex-wrap: wrap;
+        .scroll-indicator {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            width: 30px;
+            height: 30px;
+            display: none; /* Hidden by default */
+            align-items: center;
             justify-content: center;
+            animation: bounce 2s infinite;
+            z-index: 22;
+        }
+        .scroll-indicator svg { fill: var(--light); width: 30px; height: 30px; opacity: 0.7; }
+        .scroll-indicator.visible { display: flex; }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(5px); }
+            60% { transform: translateX(-50%) translateY(2px); }
+        }
+
+        .options-container {
+            position: absolute;
+            bottom: var(--options-bottom-padding);
+            left: var(--options-side-padding);
+            right: var(--options-side-padding);
+            z-index: 30;
+            display: flex;
             gap: 15px;
-            width: 90%;
-            max-width: 700px;
-            padding: 20px;
-            background-color: rgba(26, 46, 64, 0.95);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(80, 227, 194, 0.3);
-            border: 3px solid var(--secondary);
-            z-index: 10;
+            align-items: center;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
-            flex-shrink: 0; 
-            margin-bottom: var(--main-content-padding-vertical); 
-            min-height: var(--options-min-height); 
-            align-items: center; 
-            align-self: center; /* Center options container within main-content-area */
         }
 
         .options-container.visible { opacity: 1; pointer-events: all; }
 
         .option-btn {
-            padding: 18px 30px;
+            padding: 18px 25px;
             border: none;
             border-radius: 50px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             color: white;
             font-family: 'Fredoka', sans-serif;
-            font-size: clamp(17px, 3.8vw, 20px);
+            font-size: clamp(16px, 3.5vw, 19px);
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
-            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             box-shadow: 0 5px 20px rgba(80, 227, 194, 0.4);
-            flex-grow: 1; 
-            min-width: 160px; 
-        }
-        
-        @media (max-width: 500px) {
-            .option-btn { width: 100%; flex-grow: 0; } 
-            .options-container { padding: 15px; }
-        }
-        @media (min-width: 501px) and (max-width: 768px) {
-            .option-btn { width: calc(50% - 10px); flex-grow: 0; } 
+            flex-grow: 1;
+            flex-basis: 0;
+            max-width: 400px;
         }
 
-        .option-btn:hover { transform: translateY(-5px) scale(1.05); }
+        .options-container.single-option .option-btn {
+             flex-grow: 0; /* Prevent single button from stretching full width */
+             min-width: 200px;
+        }
         
+        .option-btn:hover { 
+            transform: translateY(-5px) scale(1.03); 
+            box-shadow: 0 8px 25px rgba(80, 227, 194, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -346,26 +358,24 @@
                 <img src="assets/logo.png" alt="Chizel Logo" class="logo">
                 <div class="logo-tagline">Turning Screen Time Into Skill Time!</div>
             </div>
-            <div></div>
-        </div>
+            <div></div> </div>
 
         <div class="main-content-area">
-            <div class="character-bubble-group">
-                <div class="speech-bubble" id="grandma-speech">
-                    <div class="bubble-content"></div>
-                    <div class="typing-indicator" id="typing-indicator">
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                        <div class="typing-dot"></div>
-                    </div>
+            <div class="speech-bubble" id="grandma-speech">
+                <div class="bubble-content"></div>
+                <div class="typing-indicator" id="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
                 </div>
-                <div class="character">
-                    <div class="character-image">
-                        <img src="assets/dadi.png" alt="Grandma character">
-                    </div>
+                <div class="tail-extra-1"></div> 
+                <div class="scroll-indicator" id="scroll-indicator">
+                    <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                 </div>
             </div>
-
+            <div class="character">
+                <img src="assets/dadi.png" alt="Grandma character">
+            </div>
             <div class="options-container" id="options-container"></div>
         </div>
     </div>
@@ -397,56 +407,47 @@
             typingIndicator: document.getElementById('typing-indicator'),
             optionsContainer: document.getElementById('options-container'),
             starsContainer: document.getElementById('stars'),
-            backBtn: document.getElementById('back-btn'), // Get the back button element
+            backBtn: document.getElementById('back-btn'),
+            scrollIndicator: document.getElementById('scroll-indicator'),
         };
 
-        // currentStepId is now primarily for displaying the content, not history management
         let currentStepId = 0; 
 
         function init() {
             createStars();
             
-            // This event listener handles when the user uses the BROWSER'S native back/forward buttons
             window.addEventListener('popstate', (event) => {
                 if (event.state && event.state.stepId !== undefined) {
-                    displayStoryStep(event.state.stepId, false); // Don't push new state when using browser history
+                    displayStoryStep(event.state.stepId, false);
                 }
             });
 
-            // On initial load, push the first step into browser history.
-            // If the page is refreshed or opened with a specific hash, start there.
+            elements.grandmaSpeech.addEventListener('scroll', handleBubbleScroll);
+
             const initialHash = window.location.hash.replace('#step-', '');
             const initialStepId = parseInt(initialHash);
             const startStep = storyScript.find(s => s.id === (isNaN(initialStepId) ? 0 : initialStepId));
             currentStepId = startStep ? startStep.id : 0;
             
-            // Push the initial state, ensuring a starting point in history
-            history.pushState({ stepId: currentStepId }, `Step ${currentStepId}`, `#step-${currentStepId}`);
-            displayStoryStep(currentStepId, false); // Display it, but don't push history again
+            history.replaceState({ stepId: currentStepId }, `Step ${currentStepId}`, `#step-${currentStepId}`);
+            displayStoryStep(currentStepId, false);
             
-            // Attach the specific back button functionality
             elements.backBtn.addEventListener('click', () => {
-                // Check if the page is inside an iframe (like when it's in fullscreen mode on your site)
                 if (window.self !== window.top) {
-                    // Send a message to the parent window to close the demo
                     window.parent.postMessage('closeChizelverseDemo', '*');
                 } else {
-                    // If it's not in an iframe, it's in its own tab. First, try to close it.
                     window.close();
-
-                    // As a fallback, if the tab can't be closed by script, go back in history
                     setTimeout(() => {
-                        // Check if the window is still open (meaning window.close() failed)
-                        // A small delay gives the browser time to attempt closing before checking.
                         if (!window.closed) { 
                             window.history.back();
                         }
-                    }, 100); // 100ms delay
+                    }, 100);
                 }
             });
         }
 
         function createStars() {
+            if (!elements.starsContainer) return;
             for (let i = 0; i < 200; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
@@ -460,6 +461,27 @@
                 elements.starsContainer.appendChild(star);
             }
         }
+        
+        function checkScroll() {
+            const bubble = elements.grandmaSpeech;
+            if (bubble.scrollHeight > bubble.clientHeight) {
+                elements.scrollIndicator.classList.add('visible');
+            } else {
+                elements.scrollIndicator.classList.remove('visible');
+            }
+        }
+
+        function handleBubbleScroll() {
+            const bubble = elements.grandmaSpeech;
+            // Hide indicator if user is near the bottom
+            const isAtBottom = bubble.scrollTop + bubble.clientHeight >= bubble.scrollHeight - 15;
+            if (isAtBottom) {
+                elements.scrollIndicator.classList.remove('visible');
+            } else if (bubble.scrollHeight > bubble.clientHeight) {
+                 // Show it again if they scroll back up and it's still scrollable
+                 elements.scrollIndicator.classList.add('visible');
+            }
+        }
 
         function displayStoryStep(stepIndex, pushState = true) {
             const step = storyScript.find(s => s.id === stepIndex);
@@ -468,19 +490,21 @@
             currentStepId = stepIndex;
 
             if (pushState) {
-                // Add the new step to the browser's history.
                 history.pushState({ stepId: stepIndex }, `Step ${stepIndex}`, `#step-${stepIndex}`);
             }
 
             elements.optionsContainer.innerHTML = '';
             elements.optionsContainer.classList.remove('visible');
+            elements.scrollIndicator.classList.remove('visible');
             
             elements.grandmaSpeech.classList.add('visible');
             elements.grandmaBubbleContent.innerHTML = '';
             elements.typingIndicator.classList.add('active');
+            elements.grandmaSpeech.scrollTop = 0;
 
             typeMessage(step.message, elements.grandmaBubbleContent, () => {
                 elements.typingIndicator.classList.remove('active');
+                checkScroll(); // Check if scroll indicator is needed
                 if (step.options) {
                     showOptions(step.options);
                 }
@@ -493,23 +517,19 @@
             element.innerHTML = '';
 
             function typing() {
+                const typeSpeed = 30;
                 if (i < chars.length) {
                     if (chars[i] === '<') {
                         let tag = '';
                         while (i < chars.length && chars[i] !== '>') {
-                            tag += chars[i];
-                            i++;
+                            tag += chars[i]; i++;
                         }
-                        if (i < chars.length) {
-                           tag += chars[i];
-                           i++;
-                        }
+                        if (i < chars.length) { tag += chars[i]; i++; }
                         element.innerHTML += tag;
                     } else {
-                        element.innerHTML += chars[i];
-                        i++;
+                        element.innerHTML += chars[i]; i++;
                     }
-                    setTimeout(typing, 30);
+                    setTimeout(typing, typeSpeed);
                 } else if (callback) {
                     callback();
                 }
@@ -518,6 +538,14 @@
         }
 
         function showOptions(options) {
+            if (options.length === 1) {
+                elements.optionsContainer.classList.add('single-option');
+                elements.optionsContainer.style.justifyContent = 'center';
+            } else {
+                elements.optionsContainer.classList.remove('single-option');
+                elements.optionsContainer.style.justifyContent = 'space-between';
+            }
+
             options.forEach(option => {
                 const button = document.createElement('button');
                 button.className = 'option-btn';
