@@ -6,6 +6,15 @@
     <title>Chizel for Parents - A Grandmother's Guide</title>
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;700&family=Comic+Neue:wght@400;700&display=swap">
     <link rel="icon" type="image/png" href="assets/logo.png">
+    <script>
+        // Fix for 100vh issue on mobile browsers
+        const setAppHeight = () => {
+            const doc = document.documentElement;
+            doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+        };
+        window.addEventListener('resize', setAppHeight);
+        setAppHeight();
+    </script>
     <style>
         :root {
             --primary: #4A90E2;
@@ -33,7 +42,8 @@
             font-family: 'Fredoka', sans-serif;
             background-color: var(--space-blue);
             color: var(--light);
-            height: 100vh;
+            height: 100vh; /* Fallback for browsers without JS */
+            height: var(--app-height); /* Use the JS-calculated height */
             overflow: hidden; /* Prevent body scrollbars */
             font-size: 18px;
             touch-action: manipulation;
@@ -208,6 +218,7 @@
             z-index: 20;
             transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s;
             max-height: calc(100vh - var(--header-height) - var(--character-height) - 150px);
+            max-height: calc(var(--app-height) - var(--header-height) - var(--character-height) - 150px);
             overflow-y: auto;
         }
 
