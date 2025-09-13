@@ -279,6 +279,7 @@
             60% { transform: translateX(-50%) translateY(2px); }
         }
 
+        /* --- REDESIGNED BUTTONS SECTION --- */
         .options-container {
             position: absolute;
             bottom: var(--options-bottom-padding);
@@ -286,10 +287,9 @@
             right: var(--options-side-padding);
             z-index: 30;
             display: flex;
-            flex-wrap: wrap; /* Allow buttons to wrap */
-            gap: 15px;
-            justify-content: center; /* Center buttons */
+            justify-content: space-between; /* Pushes buttons to the edges */
             align-items: center;
+            gap: 10px;
             opacity: 0;
             pointer-events: none;
             transition: all 0.3s ease;
@@ -297,8 +297,13 @@
 
         .options-container.visible { opacity: 1; pointer-events: all; }
 
+        /* Rule to center the button when there's only one */
+        .options-container.single-option {
+            justify-content: center;
+        }
+
         .option-btn {
-            padding: 18px 25px;
+            padding: 15px 20px;
             border: none;
             border-radius: 50px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
@@ -310,16 +315,11 @@
             text-align: center;
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             box-shadow: 0 5px 20px rgba(80, 227, 194, 0.4);
+            
+            /* Sizing: Allow buttons to share space */
             flex-grow: 1;
-            flex-basis: calc(50% - 10px); /* Two buttons per row on small screens */
-            max-width: 400px;
-            min-width: 150px; /* Prevent buttons from becoming too small */
-        }
-
-        .options-container.single-option .option-btn {
-             flex-grow: 0; /* Prevent single button from stretching */
-             flex-basis: auto;
-             min-width: 200px;
+            flex-basis: 0;
+            max-width: 48%; /* Prevents them from touching */
         }
         
         .option-btn:hover { 
@@ -327,11 +327,11 @@
             box-shadow: 0 8px 25px rgba(80, 227, 194, 0.6);
         }
 
-        /* Media query for very small screens */
-        @media (max-width: 380px) {
-            .option-btn {
-                flex-basis: 100%; /* Stack buttons vertically */
-            }
+        /* For the single button case, don't let it stretch to full width */
+        .options-container.single-option .option-btn {
+             flex-grow: 0;
+             flex-basis: auto;
+             min-width: 200px;
         }
     </style>
 </head>
