@@ -152,6 +152,11 @@
             position: relative; /* Crucial for positioning children */
         }
 
+        @keyframes float {
+            0%, 100% { transform: translateX(-50%) translateY(0px); }
+            50% { transform: translateX(-50%) translateY(-10px); }
+        }
+
         .character {
             position: absolute;
             bottom: 0;
@@ -160,9 +165,11 @@
             height: var(--character-height);
             z-index: 10;
             transition: transform 0.3s ease;
+            animation: float 6s ease-in-out infinite;
         }
         
         .character:hover {
+            animation-play-state: paused;
             transform: translateX(-50%) scale(1.05);
         }
 
@@ -182,31 +189,25 @@
 
         .speech-bubble {
             position: absolute;
-            bottom: calc(var(--character-height) + 10px); /* Adjusted for thought bubble */
+            bottom: calc(var(--character-height) + 20px);
             left: 50%;
             transform: translateX(-50%) scale(0);
             transform-origin: bottom center;
-            background-color: var(--dark);
+            background: linear-gradient(145deg, #2a3a4a, #1a2e40);
             color: var(--light);
             padding: 25px 30px;
             border: 3px solid var(--grandma-color);
+            border-radius: 30px;
             width: clamp(280px, 90vw, 450px);
             font-size: clamp(16px, 3vw, 20px);
             line-height: 1.5;
             text-align: center;
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 2px 5px rgba(255, 255, 255, 0.1);
             font-family: 'Comic Neue', cursive;
             word-wrap: break-word;
             z-index: 20;
-            
-            /* Classic cloud shape - adjusted for more distinct curves */
-            border-radius: 20px 100px 70px 100px / 100px 30px 100px 30px;
-            
-            /* Transitions */
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-            
-            /* Optimized height and scrolling */
-            max-height: calc(100vh - var(--header-height) - var(--character-height) - 130px);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s;
+            max-height: calc(100vh - var(--header-height) - var(--character-height) - 150px);
             overflow-y: auto;
         }
 
@@ -214,49 +215,19 @@
             transform: translateX(-50%) scale(1);
         }
 
-        /* Thought bubble tail elements */
-        .speech-bubble::before,
-        .speech-bubble::after,
-        .speech-bubble .tail-extra-1,
-        .speech-bubble .tail-extra-2 {
+        .speech-bubble:after {
             content: '';
             position: absolute;
-            background-color: var(--dark);
-            border-radius: 50%;
-            border: 3px solid var(--grandma-color);
-            z-index: 19; /* Behind the main bubble, but above character */
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 20px solid var(--grandma-color);
         }
 
-        /* Large circle */
-        .speech-bubble::before {
-            width: 30px;
-            height: 30px;
-            bottom: -35px; /* Position to connect */
-            left: 50%;
-            transform: translateX(calc(-50% - 20px)); /* Shift left from center */
-        }
-
-        /* Medium circle */
-        .speech-bubble::after {
-            width: 20px;
-            height: 20px;
-            bottom: -50px; /* Position below large */
-            left: 50%;
-            transform: translateX(calc(-50% - 5px)); /* Shift right from large */
-        }
-
-        /* Small circle (part of tail, inside .bubble-content for proper layering) */
-        .speech-bubble .tail-extra-1 {
-            width: 12px;
-            height: 12px;
-            bottom: -60px; /* Connect to character */
-            left: 50%;
-            transform: translateX(calc(-50% + 15px)); /* Shift right more */
-            border: 2px solid var(--grandma-color); /* Thinner border for small */
-            background-color: var(--dark); /* Ensure it's dark fill */
-            z-index: 18; /* Behind character, but still visible */
-        }
-        
         .speech-bubble::-webkit-scrollbar { width: 8px; }
         .speech-bubble::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 4px; }
         .speech-bubble::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
@@ -304,7 +275,9 @@
             right: var(--options-side-padding);
             z-index: 30;
             display: flex;
+            flex-wrap: wrap; /* Allow buttons to wrap */
             gap: 15px;
+            justify-content: center; /* Center buttons */
             align-items: center;
             opacity: 0;
             pointer-events: none;
@@ -327,18 +300,27 @@
             text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
             box-shadow: 0 5px 20px rgba(80, 227, 194, 0.4);
             flex-grow: 1;
-            flex-basis: 0;
+            flex-basis: calc(50% - 10px); /* Two buttons per row on small screens */
             max-width: 400px;
+            min-width: 150px; /* Prevent buttons from becoming too small */
         }
 
         .options-container.single-option .option-btn {
-             flex-grow: 0; /* Prevent single button from stretching full width */
+             flex-grow: 0; /* Prevent single button from stretching */
+             flex-basis: auto;
              min-width: 200px;
         }
         
         .option-btn:hover { 
             transform: translateY(-5px) scale(1.03); 
             box-shadow: 0 8px 25px rgba(80, 227, 194, 0.6);
+        }
+
+        /* Media query for very small screens */
+        @media (max-width: 380px) {
+            .option-btn {
+                flex-basis: 100%; /* Stack buttons vertically */
+            }
         }
     </style>
 </head>
@@ -368,7 +350,6 @@
                     <div class="typing-dot"></div>
                     <div class="typing-dot"></div>
                 </div>
-                <div class="tail-extra-1"></div> 
                 <div class="scroll-indicator" id="scroll-indicator">
                     <svg viewBox="0 0 24 24"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
                 </div>
@@ -540,10 +521,8 @@
         function showOptions(options) {
             if (options.length === 1) {
                 elements.optionsContainer.classList.add('single-option');
-                elements.optionsContainer.style.justifyContent = 'center';
             } else {
                 elements.optionsContainer.classList.remove('single-option');
-                elements.optionsContainer.style.justifyContent = 'space-between';
             }
 
             options.forEach(option => {
