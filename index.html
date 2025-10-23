@@ -26,7 +26,7 @@
             --space-blue: #1A2E40;
 
             --header-height: clamp(70px, 10vh, 80px);
-            --character-height: clamp(180px, 30vh, 250px);
+            --character-height: clamp(200px, 35vh, 280px); /* Adjusted for new asset */
             --options-bottom-padding: clamp(15px, 4vh, 30px);
             --options-side-padding: clamp(15px, 4vw, 30px);
         }
@@ -62,7 +62,7 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            background: radial-gradient(ellipse at bottom, var(--space-blue) 0%, #000000 100%);
+            background: radial-gradient(ellipse at bottom, var(--space-blue) 0%, #0d1720 100%);
             z-index: -2;
         }
 
@@ -78,11 +78,17 @@
             background-color: white;
             border-radius: 50%;
             animation: twinkle var(--duration, 5s) infinite ease-in-out;
+            animation-delay: var(--delay, 0s);
         }
 
+        /* More dynamic star animations */
         @keyframes twinkle {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
+            0%, 100% { opacity: 0.2; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1); }
+        }
+        @keyframes twinkle-slow {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.5; }
         }
         
         .header {
@@ -95,6 +101,11 @@
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
+            /* Premium UI: Glassmorphism */
+            background: rgba(26, 46, 64, 0.2);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(74, 144, 226, 0.1);
         }
         
         .back-btn { 
@@ -110,7 +121,7 @@
             transition: all 0.3s ease;
         }
         
-        .back-btn:hover {
+        .back-btn:hover, .back-btn:active {
             background: rgba(74, 144, 226, 0.5);
             transform: scale(1.1);
         }
@@ -138,7 +149,7 @@
 
         .logo {
             height: 50px;
-            filter: drop-shadow(0 0 10px var(--secondary));
+            /* Removed filter, drop-shadow now on character */
             margin-bottom: 5px;
         }
 
@@ -164,7 +175,7 @@
 
         @keyframes float {
             0%, 100% { transform: translateX(-50%) translateY(0px); }
-            50% { transform: translateX(-50%) translateY(-10px); }
+            50% { transform: translateX(-50%) translateY(-12px); }
         }
 
         .character {
@@ -180,7 +191,7 @@
         
         .character:hover {
             animation-play-state: paused;
-            transform: translateX(-50%) scale(1.05);
+            transform: translateX(-50%) scale(1.03);
         }
 
         @keyframes breathe {
@@ -192,9 +203,14 @@
             display: block;
             height: 100%;
             width: auto;
-            filter: drop-shadow(0 10px 25px rgba(144, 19, 254, 0.5));
+            /* Premium UI: Dynamic drop shadow for a "glow" */
+            filter: drop-shadow(0 10px 30px rgba(80, 227, 194, 0.45));
             transform-origin: bottom center;
             animation: breathe 5s ease-in-out infinite;
+            transition: filter 0.3s ease;
+        }
+        .character:hover img {
+            filter: drop-shadow(0 12px 35px rgba(80, 227, 194, 0.6));
         }
 
         .speech-bubble {
@@ -209,11 +225,12 @@
             border: 3px solid var(--grandma-color);
             border-radius: 30px;
             width: clamp(280px, 90vw, 450px);
-            font-size: clamp(16px, 3vw, 20px);
+            font-size: clamp(17px, 3vw, 20px); /* Slightly larger */
             line-height: 1.5;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7), inset 0 2px 5px rgba(255, 255, 255, 0.1);
-            font-family: 'Comic Neue', cursive;
+            /* Premium UI: Cleaner font */
+            font-family: 'Fredoka', sans-serif;
             word-wrap: break-word;
             z-index: 20;
             transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55), box-shadow 0.3s;
@@ -307,13 +324,14 @@
             border: none;
             border-radius: 50px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
+            color: var(--dark);
             font-family: 'Fredoka', sans-serif;
             font-size: clamp(16px, 3.5vw, 19px);
+            font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
             text-align: center;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 1px rgba(255, 255, 255, 0.3);
             box-shadow: 0 5px 20px rgba(80, 227, 194, 0.4);
             
             /* Sizing: Allow buttons to share space */
@@ -327,12 +345,85 @@
             box-shadow: 0 8px 25px rgba(80, 227, 194, 0.6);
         }
 
+        .option-btn:active {
+            transform: translateY(-2px) scale(0.98); /* Premium UI: Press feedback */
+            box-shadow: 0 4px 15px rgba(80, 227, 194, 0.5);
+        }
+
         /* For the single button case, don't let it stretch to full width */
         .options-container.single-option .option-btn {
              flex-grow: 0;
              flex-basis: auto;
              min-width: 200px;
         }
+
+        /* --- NEW: VIDEO MODAL --- */
+        .video-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            height: var(--app-height);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .video-modal.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .video-modal-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            font-size: 28px;
+            line-height: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .video-modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: scale(1.1) rotate(90deg);
+        }
+
+        .video-modal-content {
+            width: 90%;
+            max-width: 960px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+
+        .video-modal.visible .video-modal-content {
+            transform: scale(1);
+        }
+
+        .video-modal-content video {
+            width: 100%;
+            height: 100%;
+        }
+
     </style>
 </head>
 <body>
@@ -372,19 +463,36 @@
         </div>
     </div>
 
+    <div class="video-modal" id="video-modal">
+        <div class="video-modal-close" id="video-close-btn">&times;</div>
+        <div class="video-modal-content">
+            <video id="video-player" src="assets/pp.mp4" controls playsinline></video>
+        </div>
+    </div>
+
     <script>
+        // --- NEW: Updated Story Script ---
         const storyScript = [
             { id: 0, message: "Hey dear! Struggling to understand your own children or what they might do next? Don’t worry — I’ve been there too, let Granny help you out.", options: [{ text: "Let's begin", nextStep: 1 }] },
             { id: 1, message: "Are you an office-going parent?", options: [{ text: "Yes", nextStep: 2 }, { text: "No", nextStep: 6 }] },
             { id: 2, message: "Do you often feel like you don’t have the energy to play with your children after long office hours?", options: [{ text: "Yes", nextStep: 3 }, { text: "No", nextStep: 4 }] },
-            { id: 3, message: "Well dear, I understand how exhausting it can be. I’ll share some simple activities that will only take 5 minutes every day.", options: [{ text: "Show me", nextStep: 100 }] },
+            // All paths now lead to step 99
+            { id: 3, message: "Well dear, I understand how exhausting it can be. I'd love to share some simple activities, but first, I found something that might help.", options: [{ text: "What is it?", nextStep: 99 }] },
             { id: 4, message: "That’s lovely! But tell me, do you still face challenges in managing your children at home?", options: [{ text: "Yes", nextStep: 5 }, { text: "No", nextStep: 9 }] },
-            { id: 5, message: "Alright dear, let me guide you through a few tricks that might make things easier. These will only take 5 minutes each day.", options: [{ text: "Okay, I'm listening", nextStep: 100 }] },
+            { id: 5, message: "Alright dear, let me guide you. I have a few tricks, but I also found something else that might help.", options: [{ text: "Okay, I'm listening", nextStep: 99 }] },
             { id: 6, message: "So dear, do you sometimes face challenges in managing or handling your children at home?", options: [{ text: "Yes", nextStep: 7 }, { text: "No", nextStep: 8 }] },
-            { id: 7, message: "I see. Don’t worry, I’ve got a few ideas that will make things smoother for you. They only take 5 minutes a day.", options: [{ text: "Please share them", nextStep: 100 }] },
-            { id: 8, message: "That’s wonderful! Even so, I’ll share a few little ideas to keep your connection strong.", options: [{ text: "I'd love that", nextStep: 100 }] },
-            { id: 9, message: "That’s wonderful to hear! Still, I’ll share some tips to keep strengthening your bond.", options: [{ text: "Yes, please", nextStep: 100 }] },
-            { id: 100, message: "Here's the list of 5 simple activities you can do with your children every day to build a beautiful bond.", options: [{ text: "I'm Ready!", nextStep: 101 }] },
+            { id: 7, message: "I see. Don’t worry, I’ve got a few ideas. But before that, I found something you might find very useful.", options: [{ text: "Please share", nextStep: 99 }] },
+            { id: 8, message: "That’s wonderful! Even so, I have some ideas to keep your connection strong, starting with this.", options: [{ text: "I'd love that", nextStep: 99 }] },
+            { id: 9, message: "That’s wonderful to hear! Still, I’ll share some tips, starting with something I found just for you.", options: [{ text: "Yes, please", nextStep: 99 }] },
+            
+            // NEW: Video suggestion step
+            { id: 99, message: "I found this lovely little video that explains *why* these early years are so important for their education. Would you like to watch it? It's very short!", options: [{ text: "Yes, play video", nextStep: 999 }, { text: "Maybe later", nextStep: 100 }] },
+            
+            // NEW: Video player step
+            { id: 999, message: "Here you go, dear. Let me know when you're finished watching.", action: 'showVideo', options: [{ text: "Finished video", nextStep: 100 }] },
+
+            // Original steps resume
+            { id: 100, message: "Alright. Here's the list of 5 simple activities you can do with your children every day to build a beautiful bond.", options: [{ text: "I'm Ready!", nextStep: 101 }] },
             { id: 101, message: `For You:<ul><li><strong>Story Swap:</strong> Share a short story from your childhood.</li><li><strong>2-Minute Dance:</strong> Have a silly dance break.</li><li><strong>Question Jar:</strong> Pull out a fun question.</li><li><strong>Gratitude Game:</strong> Say one thing you’re thankful for.</li><li><strong>Adventure Talk:</strong> Share the best part of your day.</li></ul>`, options: [{ text: "That's helpful!", nextStep: 102 }] },
             { id: 102, message: "And here are some engaging activities you can give your children to do to build their independence.", options: [{ text: "What are they?", nextStep: 103 }] },
             { id: 103, message: `For Your Child:<ul><li><strong>Treasure Hunt:</strong> Hide 3 simple objects.</li><li><strong>5-Minute Build:</strong> Build with blocks or paper.</li><li><strong>Art Dash:</strong> Draw their 'dream house'.</li><li><strong>Kindness Task:</strong> Do one kind act for a family member.</li><li><strong>Role Play:</strong> Pretend to be a teacher.</li></ul>`, options: [{ text: "Great ideas!", nextStep: 104 }] },
@@ -401,9 +509,25 @@
             starsContainer: document.getElementById('stars'),
             backBtn: document.getElementById('back-btn'),
             scrollIndicator: document.getElementById('scroll-indicator'),
+            // NEW: Video modal elements
+            videoModal: document.getElementById('video-modal'),
+            videoPlayer: document.getElementById('video-player'),
+            videoCloseBtn: document.getElementById('video-close-btn')
         };
 
         let currentStepId = 0; 
+
+        // --- NEW: Video Modal Functions ---
+        function openVideoModal() {
+            elements.videoModal.classList.add('visible');
+            elements.videoPlayer.play();
+        }
+
+        function closeVideoModal() {
+            elements.videoModal.classList.remove('visible');
+            elements.videoPlayer.pause();
+            elements.videoPlayer.currentTime = 0; // Rewind
+        }
 
         function init() {
             createStars();
@@ -415,6 +539,16 @@
             });
 
             elements.grandmaSpeech.addEventListener('scroll', handleBubbleScroll);
+            
+            // NEW: Add close listeners for video
+            elements.videoCloseBtn.addEventListener('click', closeVideoModal);
+            elements.videoModal.addEventListener('click', (e) => {
+                // Close if clicking the dark background, but not the video content
+                if (e.target === elements.videoModal) {
+                    closeVideoModal();
+                }
+            });
+
 
             const initialHash = window.location.hash.replace('#step-', '');
             const initialStepId = parseInt(initialHash);
@@ -443,20 +577,35 @@
             for (let i = 0; i < 200; i++) {
                 const star = document.createElement('div');
                 star.className = 'star';
-                star.style.width = `${Math.random() * 3 + 1}px`;
+                const size = Math.random() * 2.5 + 1;
+                star.style.width = `${size}px`;
                 star.style.height = star.style.width;
                 star.style.left = `${Math.random() * 100}%`;
                 star.style.top = `${Math.random() * 100}%`;
-                star.style.opacity = Math.random();
-                star.style.animationDelay = `${Math.random() * 5}s`;
-                star.style.setProperty('--duration', `${Math.random() * 3 + 2}s`);
+                star.style.setProperty('--delay', `${Math.random() * 5}s`);
+                
+                // Premium UI: Varied star animations
+                if (Math.random() > 0.3) {
+                    star.style.animationName = 'twinkle';
+                    star.style.setProperty('--duration', `${Math.random() * 3 + 4}s`);
+                    star.style.opacity = Math.random() * 0.5 + 0.2;
+                } else {
+                    star.style.animationName = 'twinkle-slow';
+                    star.style.setProperty('--duration', `${Math.random() * 5 + 8}s`);
+                    star.style.opacity = Math.random() * 0.3 + 0.1;
+                }
+
                 elements.starsContainer.appendChild(star);
             }
         }
         
         function checkScroll() {
             const bubble = elements.grandmaSpeech;
-            if (bubble.scrollHeight > bubble.clientHeight) {
+            // Show if scrollable and not at the bottom
+            const isScrollable = bubble.scrollHeight > bubble.clientHeight;
+            const isAtBottom = bubble.scrollTop + bubble.clientHeight >= bubble.scrollHeight - 15;
+            
+            if (isScrollable && !isAtBottom) {
                 elements.scrollIndicator.classList.add('visible');
             } else {
                 elements.scrollIndicator.classList.remove('visible');
@@ -465,16 +614,15 @@
 
         function handleBubbleScroll() {
             const bubble = elements.grandmaSpeech;
-            // Hide indicator if user is near the bottom
             const isAtBottom = bubble.scrollTop + bubble.clientHeight >= bubble.scrollHeight - 15;
             if (isAtBottom) {
                 elements.scrollIndicator.classList.remove('visible');
             } else if (bubble.scrollHeight > bubble.clientHeight) {
-                 // Show it again if they scroll back up and it's still scrollable
                  elements.scrollIndicator.classList.add('visible');
             }
         }
 
+        // --- UPDATED: displayStoryStep Function ---
         function displayStoryStep(stepIndex, pushState = true) {
             const step = storyScript.find(s => s.id === stepIndex);
             if (!step) return;
@@ -494,6 +642,11 @@
             elements.typingIndicator.classList.add('active');
             elements.grandmaSpeech.scrollTop = 0;
 
+            // NEW: Check for video action
+            if (step.action === 'showVideo') {
+                openVideoModal();
+            }
+
             typeMessage(step.message, elements.grandmaBubbleContent, () => {
                 elements.typingIndicator.classList.remove('active');
                 checkScroll(); // Check if scroll indicator is needed
@@ -507,9 +660,9 @@
             const chars = Array.from(message);
             let i = 0;
             element.innerHTML = '';
+            const typeSpeed = 25; // Slightly faster typing
 
             function typing() {
-                const typeSpeed = 30;
                 if (i < chars.length) {
                     if (chars[i] === '<') {
                         let tag = '';
@@ -521,6 +674,10 @@
                     } else {
                         element.innerHTML += chars[i]; i++;
                     }
+                    
+                    // Scroll as we type
+                    elements.grandmaSpeech.scrollTop = elements.grandmaSpeech.scrollHeight;
+                    
                     setTimeout(typing, typeSpeed);
                 } else if (callback) {
                     callback();
@@ -544,6 +701,7 @@
                     if (option.nextStep !== undefined) {
                         displayStoryStep(option.nextStep);
                     }
+                    // Other actions (like opening video) are now handled by the step's `action` property
                 });
                 elements.optionsContainer.appendChild(button);
             });
