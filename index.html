@@ -1013,22 +1013,81 @@
             });
         }
 
+
+
+
+        // ---- Back/close helpers ----
+const exitFullscreenIfAny = async () => {
+  try {
+    if (document.fullscreenElement) {
+      await document.exitFullscreen();
+      return true;
+    }
+  } catch (_) {}
+  return false;
+};
+
+const closeTab = () => {
+  window.close();
+  try {
+    window.open('', '_self');
+    window.close();
+  } catch (_) {}
+  if (window.history.length > 1) {
+    window.history.back();
+  }
+};
+
+const isInIframe = () => window.self !== window.top;
+
+const requestParentExitAndClose = () => {
+  try {
+    window.parent.postMessage({ type: 'CHIZEL_REQUEST_EXIT_FULLSCREEN_AND_CLOSE' }, '*');
+  } catch (_) {}
+};
+
+// Optional: parent acks
+window.addEventListener('message', async (event) => {
+  const data = event?.data || {};
+  if (data?.type === 'CHIZEL_ACK_EXITED_FULLSCREEN') {
+    closeTab();
+  }
+  if (data?.type === 'CHIZEL_HOST_WILL_HANDLE_CLOSE') {
+    // Host will navigate/close; no local action needed
+  }
+});
+
+
         function init() {
             createStars();
 
-            window.addEventListener('popstate', (event) => {
-                if (event.state && event.state.stepId !== undefined) {
-                    // This is your original, correct logic:
-                    // It handles back navigation within your story.
-                    displayStoryStep(event.state.stepId, false);
-                } else {
-                    // This is the new part:
-                    // When at the first step, the history state is null.
-                    // We attempt to close the tab.
-                    // Note: This will be blocked by most browsers for security.
-                    window.close();
-                }
-            });
+            window.addEventListener('popstate', async (event) => {
+  if (event.state && event.state.stepId !== undefined) {
+    // In-app back navigation
+    displayStoryStep(event.state.stepId, false);
+  } else {
+    // First state or leaving: prefer closing/exit
+    if (isInIframe()) {
+      requestParentExitAndClose();
+      await exitFullscreenIfAny();
+    } else {
+      closeTab();
+    }
+  }
+});
+document.getElementById('back-btn').addEventListener('click', async () => {
+  if (isInIframe()) {
+    requestParentExitAndClose();
+    await exitFullscreenIfAny();
+  } else {
+    if (history.state && history.state.stepId !== undefined && history.length > 1) {
+      history.back();
+    } else {
+      closeTab();
+    }
+  }
+});
+
 
             elements.grandmaSpeech.addEventListener('scroll', handleBubbleScroll);
             elements.videoCloseBtn.addEventListener('click', closeVideoModal);
